@@ -1,0 +1,91 @@
+{% extends 'booking/base.html' %}
+
+{% block title %}დაჯავშნილი ნომრები - Hotel Booking{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
+    <h2 class="fw-bold mb-0">Booked Rooms</h2>
+
+    <!-- ქალაქების მიხედვით ფილტრაცია -->
+    <form method="GET" class="d-flex gap-2 align-items-center">
+        <select name="city" class="form-select" style="min-width: 200px;">
+            <option value="">ყველა ქალაქი</option>
+            {% for city in cities %}
+                <option value="{{ city }}" {% if selected_city == city %}selected{% endif %}>{{ city }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit" class="btn btn-primary">გაფილტვრა</button>
+        {% if selected_city %}
+            <a href="{% url 'booked_rooms' %}" class="btn btn-outline-secondary">Reset</a>
+        {% endif %}
+    </form>
+</div>
+
+<div class="card shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-dark">
+                <tr>
+                    <th>სასტუმრო</th>
+                    <th>ნომერი</th>
+                    <th>მომხმარებელი</th>
+                    <th>სტატუსი</th>
+                    <th>Check-in</th>
+                    <th>Check-out</th>
+                    <th>ჯამური ფასი</th>
+                    <th>მოქმედება</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in bookings %}
+                <tr>
+                    <td>
+                        <div class="d-flex align-items-center gap-2">
+                            {% if item.hotel_image %}
+                                <img src="{{ item.hotel_image }}" width="50" height="40" class="rounded object-fit-cover" alt="">
+                            {% endif %}
+                            <div>
+                                <div class="fw-bold">{{ item.hotel_name }}</div>
+                                <small class="text-muted">{{ item.hotel_city }}</small>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="d-flex align-items-center gap-2">
+                            {% if item.room_image %}
+                                <img src="{{ item.room_image }}" width="50" height="40" class="rounded object-fit-cover" alt="">
+                            {% endif %}
+                            <div>
+                                <div class="fw-semibold">{{ item.room_name }}</div>
+                                <small class="text-muted">{{ item.price_per_night }} ₾ / ღამე</small>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="fw-semibold">{{ item.customer_name }}</div>
+                        <small class="text-muted">{{ item.customer_phone }}</small>
+                    </td>
+                    <td>
+                        <span class="badge bg-success">{{ item.status }}</span>
+                    </td>
+                    <td>{{ item.check_in }}</td>
+                    <td>{{ item.check_out }}</td>
+                    <td class="fw-bold text-primary">{{ item.total_price }} ₾</td>
+                    <td>
+                        <form method="POST" onsubmit="return confirm('ნამდვილად გსურთ ჯავშნის გაუქმება?');">
+                            {% csrf_token %}
+                            <input type="hidden" name="cancel_booking_id" value="{{ item.id }}">
+                            <button type="submit" class="btn btn-danger btn-sm">Cancel Booking</button>
+                        </form>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="8" class="text-center py-4 text-muted">დაჯავშნილი ნომრები არ მოიძებნა.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

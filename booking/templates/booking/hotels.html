@@ -1,0 +1,47 @@
+{% extends 'booking/base.html' %}
+
+{% block title %}სასტუმროები - Hotel Booking{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
+    <h2 class="fw-bold mb-0">სასტუმროები</h2>
+
+    <!-- ქალაქების მიხედვით ფილტრაცია -->
+    <form method="GET" class="d-flex gap-2 align-items-center">
+        <select name="city" class="form-select" style="min-width: 200px;">
+            <option value="">ყველა ქალაქი</option>
+            {% for city in cities %}
+                <option value="{{ city }}" {% if selected_city == city %}selected{% endif %}>{{ city }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit" class="btn btn-primary">გაფილტვრა</button>
+        {% if selected_city %}
+            <a href="{% url 'hotels' %}" class="btn btn-outline-secondary">გასუფთავება</a>
+        {% endif %}
+    </form>
+</div>
+
+<div class="row row-cols-1 row-cols-md-3 g-4">
+    {% for hotel in hotels %}
+    <div class="col">
+        <div class="card h-100 shadow-sm">
+            {% if hotel.featuredImage %}
+                <img src="{{ hotel.featuredImage }}" class="card-img-top" alt="{{ hotel.name }}">
+            {% else %}
+                <img src="https://via.placeholder.com/400x250?text=Hotel" class="card-img-top" alt="{{ hotel.name }}">
+            {% endif %}
+            <div class="card-body d-flex flex-column">
+                <span class="badge bg-info text-dark align-self-start mb-2">{{ hotel.city }}</span>
+                <h5 class="card-title fw-bold">{{ hotel.name }}</h5>
+                <p class="card-text text-muted small mb-3">{{ hotel.address }}</p>
+                <a href="{% url 'rooms' %}?hotel_id={{ hotel.id }}" class="btn btn-primary mt-auto w-100">ნომრების ნახვა</a>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12">
+        <div class="alert alert-info">არჩეულ ქალაქში სასტუმროები ვერ მოიძებნა.</div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
